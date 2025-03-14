@@ -25,6 +25,7 @@ public class Robot extends TimedRobot {
     public Robot() {
         m_robotContainer = new RobotContainer();
         
+        //Documentation: https://docs.revrobotics.com/revlib/spark/configuring-a-spark
         SparkMaxConfig config = new SparkMaxConfig();
         config.smartCurrentLimit(40);
         config.idleMode(IdleMode.kBrake);
@@ -32,6 +33,7 @@ public class Robot extends TimedRobot {
         //Encoder. Only enable if the encoder is actually plugged in
         //config.absoluteEncoder.setSparkMaxDataPortConfig();
         
+        //Documentaion: https://docs.revrobotics.com/revlib/spark/closed-loop
         //PID Values
         int p = 0, i = 0, d = 0;
         //config.closedLoop.pid(p, i, d);
