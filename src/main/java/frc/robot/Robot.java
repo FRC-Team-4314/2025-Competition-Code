@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.XboxController;
 
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode; 
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -28,12 +29,12 @@ public class Robot extends TimedRobot {
         config.idleMode(IdleMode.kBrake);
 
         //Encoder. Only enable if the encoder is actually plugged in
-        //config.absoluteEncoder.setSparkMaxDataPortConfig();
-        //
+        config.absoluteEncoder.setSparkMaxDataPortConfig();
+        
         //Documentaion: https://docs.revrobotics.com/revlib/spark/closed-loop
         //PID Values
-        int p = 0, i = 0, d = 0;
-        //config.closedLoop.pid(p, i, d);
+        double p = 0.1, i = 0, d = 0;
+        config.closedLoop.pid(p, i, d);
 
         spark.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
         sparkController = spark.getClosedLoopController();
@@ -57,6 +58,8 @@ public class Robot extends TimedRobot {
         if (Math.abs(controller.getLeftX()) > 0.1)
         speed = controller.getLeftX();
         spark.set(speed);
+
+        sparkController.setReference(2, ControlType.kPosition);
     }
     
     @Override
