@@ -4,211 +4,77 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.DutyCycleEncoder;
-import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.DriverStation.MatchType;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardContainer;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
-import com.ctre.phoenix6.hardware.*;
-import com.revrobotics.spark.SparkAbsoluteEncoder;
+import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-import com.ctre.phoenix.motorcontrol.VictorSPXControlMode;
-// import com.ctre.phoenix6.hardware.*;
-// import com.ctre.phoenix6.mechanisms.*;
-import com.ctre.phoenix.motorcontrol.can.*;
-// import com.ctre.phoenix.signals.*;
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.VictorSPXControlMode;
-
-import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
-// import com.revrobotics.spark.*;
-
-/**
-* The methods in this class are called automatically corresponding to each mode, as described in
-* the TimedRobot documentation. If you change the name of this class or the package after creating
-* this project, you must also update the Main.java file in the project.
-*/
 public class Robot extends TimedRobot {
-    private static final String kDefaultAuto = "Default";
-    private static final String kCustomAuto = "My Auto";
-    private String m_autoSelected;
-    
-    
-    
-    private final SendableChooser<String> m_chooser = new SendableChooser<>();
     private final RobotContainer m_robotContainer;
     private final XboxController controller = new XboxController(0);
     
-    
-    // private final TalonFX gripperMotor = new TalonFX(20);
-    // private final TalonFX armRotateMotor = new TalonFX(21);
-    // private final PWMSparkMax lowerSegmentMotor = new PWMSparkMax(22);
-    // private final PIDController lowerSegPID = new PIDController(0, 0, 0);
-    // private final DutyCycleEncoder lowerSegEncoder = new DutyCycleEncoder(32,360,0);
-    // private final PWMSparkMax upperSegmentMotor = new PWMSparkMax(23);
-    // private final Encoder upperSegEncoder = new Encoder(23,33);
-    
-    private final TalonFX gripperMotorRotate = new TalonFX(24);
-    private double armSpeed = 0;
-    
-    // private static double lowerSegMotorRatio = 0.0;
-    // private static double upperSegMotorRatio = 0.0;
-    // private static double gripperMotorRotateRatio = 0.0;
-    
     private SparkMax spark = new SparkMax(23, MotorType.kBrushless);
-    // double gripperRotateSpeed = 0.0;
+    private SparkClosedLoopController sparkController;
     
-    /**
-    * This function is run when the robot is first started up and should be used for any
-    * initialization code.
-    */
     public Robot() {
         m_robotContainer = new RobotContainer();
         
         SparkMaxConfig config = new SparkMaxConfig();
-        config.smartCurrentLimit(20);
+        config.smartCurrentLimit(40);
+        config.idleMode(IdleMode.kBrake);
+
+        //Encoder. Only enable if the encoder is actually plugged in
+        //config.absoluteEncoder.setSparkMaxDataPortConfig();
+        
+        //PID Values
+        int p = 0, i = 0, d = 0;
+        //config.closedLoop.pid(p, i, d);
+
         spark.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+        sparkController = spark.getClosedLoopController();
     }
-    
-    /**
-    * This function is called every 20 ms, no matter the mode. Use this for items like diagnostics
-    * that you want ran during disabled, autonomous, teleoperated and test.
-    *
-    * <p>This runs after the mode specific periodic functions, but before LiveWindow and
-    * SmartDashboard integrated updating.
-    */
+
     @Override
-    public void robotPeriodic() {
-        // CommandScheduler.getInstance().run(); 
+    public void robotPeriodic() {}
         
-        //SmartDashboard.putNumber("Lower Segment Encoder",lowerSegEncoder.get());
-        SmartDashboard.putNumber("Robot Rotation",0 );
-        SmartDashboard.updateValues();
-        
-        
-    }
-    
-    /**
-    * This autonomous (along with the chooser code above) shows how to select between different
-    * autonomous modes using the dashboard. The sendable chooser code works with the Java
-    * SmartDashboard. If you prefer the LabVIEW Dashboard, remove all of the chooser code and
-    * uncomment the getString line to get the auto name from the text box below the Gyro
-    *
-    * <p>You can add additional auto modes by adding additional comparisons to the switch structure
-    * below with additional strings. If using the SendableChooser make sure to add them to the
-    * chooser code above as well.
-    */
     @Override
-    public void autonomousInit() {
-        
-    }
+    public void autonomousInit() {}
     
-    /** This function is called periodically during autonomous. */
     @Override
-    public void autonomousPeriodic() {
-    }
+    public void autonomousPeriodic() {}
     
-    /** This function is called once when teleop is enabled. */
     @Override
-    public void teleopInit() {
-        // gripperRotateSpeed = 0.0;
-        
-    }
+    public void teleopInit() {}
     
-    /** This function is called periodically during operator control. */
     @Override
     public void teleopPeriodic() {
-        // if(Math.abs(gripperRotateSpeed) <= 1.0){
-        //   if (controller.getPOV() == 0){
-        //     gripperRotateSpeed+= 0.2;
-        //   }
-        //   else if (controller.getPOV() == 180){
-        //     gripperRotateSpeed -= 0.2;
-        //   }
-        // }
         double speed = 0;
         if (Math.abs(controller.getLeftX()) > 0.1)
         speed = controller.getLeftX();
         spark.set(speed);
-        /* 
-        * Arm Control, D-pad Up and down moves the lower segment, D-pad Left and right moves the upper segment
-        */
-        // upperSegEncoder.getDirection();
-        // if (controller.getPOV() == 0){
-        //   lowerSegmentMotor.set(.1);
-        // }
-        // else if (controller.getPOV() == 180){
-        //   lowerSegmentMotor.set(-.1);
-        // }
-        // else{
-        //   lowerSegmentMotor.set(0);
-        // }
-        
-        // if (controller.getPOV() == 270){
-        //   upperSegmentMotor.set(.1);
-        // }
-        // else if (controller.getPOV() == 90){
-        //   upperSegmentMotor.set(-.1);
-        // }
-        // else{
-        //   upperSegmentMotor.set(0);
-        // }
-        
-        // double lowerMotorSpeed = 0.0;
-        // double middleMotorSpeed = 0.0;
-        // if (Math.abs(controller.getLeftX()) > .1){
-        //   lowerMotorSpeed = controller.getLeftX();
-        // }
-        // else{
-        //   lowerMotorSpeed = 0.0;
-        // }
-        // if (Math.abs(controller.getRightX()) > .1){
-        //   middleMotorSpeed = controller.getRightX();
-        // } 
-        // else{
-        //   middleMotorSpeed = 0.0;
-        // }
-        
-        // lowerSegmentMotor.set(lowerMotorSpeed);
-        // upperSegmentMotor.set(middleMotorSpeed);
-        
     }
     
-    /** This function is called once when the robot is disabled. */
     @Override
     public void disabledInit() {}
     
-    /** This function is called periodically when disabled. */
     @Override
     public void disabledPeriodic() {}
     
-    /** This function is called once when test mode is enabled. */
     @Override
     public void testInit() {}
     
-    /** This function is called periodically during test mode. */
     @Override
     public void testPeriodic() {}
     
-    /** This function is called once when the robot is first started up. */
     @Override
     public void simulationInit() {}
     
-    /** This function is called periodically whilst in simulation. */
     @Override
     public void simulationPeriodic() {}
 }
