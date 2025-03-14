@@ -29,12 +29,12 @@ public class Robot extends TimedRobot {
         config.idleMode(IdleMode.kBrake);
 
         //Encoder. Only enable if the encoder is actually plugged in
-        config.absoluteEncoder.setSparkMaxDataPortConfig();
+        //config.absoluteEncoder.setSparkMaxDataPortConfig();
         
         //Documentaion: https://docs.revrobotics.com/revlib/spark/closed-loop
         //PID Values
         double p = 0.1, i = 0, d = 0;
-        config.closedLoop.pid(p, i, d);
+        //config.closedLoop.pid(p, i, d);
 
         spark.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
         sparkController = spark.getClosedLoopController();
@@ -54,12 +54,13 @@ public class Robot extends TimedRobot {
     
     @Override
     public void teleopPeriodic() {
-        double speed = 0;
+         double speed = 0;
         if (Math.abs(controller.getLeftX()) > 0.1)
-        speed = controller.getLeftX();
+            speed = controller.getLeftX();
         spark.set(speed);
-
-        sparkController.setReference(2, ControlType.kPosition);
+        
+        //More PID logic
+        //sparkController.setReference(2, ControlType.kPosition);
     }
     
     @Override
