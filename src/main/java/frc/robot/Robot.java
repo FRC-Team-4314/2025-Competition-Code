@@ -16,15 +16,12 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 public class Robot extends TimedRobot {
-    private final RobotContainer m_robotContainer;
     private final XboxController controller = new XboxController(0);
     
     private SparkMax spark = new SparkMax(23, MotorType.kBrushless);
     private SparkClosedLoopController sparkController;
     
-    public Robot() {
-        m_robotContainer = new RobotContainer();
-        
+    public Robot() {        
         //Documentation: https://docs.revrobotics.com/revlib/spark/configuring-a-spark
         SparkMaxConfig config = new SparkMaxConfig();
         config.smartCurrentLimit(40);
